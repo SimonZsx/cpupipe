@@ -12,10 +12,6 @@ import torch.optim as optim
 from torch.distributed.optim import DistributedOptimizer
 from torch.distributed.rpc import RRef
 
-from torchvision.models.resnet import Bottleneck
-
-
-
 
 
 num_classes = 1000

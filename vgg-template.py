@@ -12,12 +12,6 @@ import torch.optim as optim
 from torch.distributed.optim import DistributedOptimizer
 from torch.distributed.rpc import RRef
 
-from torchvision.models.resnet import Bottleneck
-
-
-
-
-
 num_classes = 1000
 
 
@@ -240,12 +234,12 @@ class Stage3(torch.nn.Module):
         return [RRef(p) for p in self.parameters()]
 
 
-class DistAlexNet(nn.Module):
+class DistVggNet(nn.Module):
     """
     Assemble two parts as an nn.Module and define pipelining logic
     """
     def __init__(self, workers, *args, **kwargs):
-        super(DistAlexNet, self).__init__()
+        super(DistVggNet, self).__init__()
 
         # Put the first stage on workers[0]
         self.p1_rref = rpc.remote(
@@ -316,7 +310,7 @@ image_h = 128
 def run_master():
 
     # put the two model parts on worker1 and worker2 respectively
-    model = DistAlexNet(["worker1", "worker2", "worker3", "worker4"])
+    model = DistVggNet(["worker1", "worker2", "worker3", "worker4"])
     loss_fn = nn.MSELoss()
     opt = DistributedOptimizer(
         optim.SGD,
