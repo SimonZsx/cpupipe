@@ -267,8 +267,8 @@ class DistResNet50(nn.Module):
 #                   Run RPC Processes                   #
 #########################################################
 
-num_batches = 3
-batch_size = 120
+num_batches = 30
+batch_size = 1
 image_w = 128
 image_h = 128
 
@@ -313,7 +313,7 @@ def run_worker(rank, world_size, num_split):
     p = psutil.Process()
     
     if rank == 0:
-        p.cpu_affinity([rank])
+        p.cpu_affinity([0])
         print(f"Child #{rank}: Set my affinity to {rank}, affinity now {p.cpu_affinity()}", flush=True)
 
         rpc.init_rpc(
@@ -324,7 +324,7 @@ def run_worker(rank, world_size, num_split):
         )
         run_master(num_split)
     else:
-        p.cpu_affinity([rank])
+        p.cpu_affinity([rank-1])
         print(f"Child #{rank}: Set my affinity to {rank}, affinity now {p.cpu_affinity()}", flush=True)
 
         rpc.init_rpc(
@@ -341,7 +341,7 @@ def run_worker(rank, world_size, num_split):
 
 if __name__=="__main__":
     world_size = 5
-    for num_split in [1, 2, 4, 8]:
+    for num_split in [1]:
         tik = time.time()
         mp.spawn(run_worker, args=(world_size, num_split), nprocs=world_size, join=True)
         tok = time.time()
